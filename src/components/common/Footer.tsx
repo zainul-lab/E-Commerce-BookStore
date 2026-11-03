@@ -169,6 +169,17 @@ export const Footer: React.FC = () => {
             Built with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> using React, Vite, TypeScript, React Router & Redux
           </p>
         </div>
+        <p className="mt-4 text-center text-xs text-slate-500">
+          MD Zainul Abiddin ·{' '}
+          <a
+            href="https://e-commerce-book-store-seven.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition"
+          >
+            https://e-commerce-book-store-seven.vercel.app/
+          </a>
+        </p>
       </div>
     </footer>
   );
