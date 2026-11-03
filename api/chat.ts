@@ -1,10 +1,11 @@
-// Vercel serverless function: proxies chat requests to an OpenAI-compatible LLM API
-// and streams the reply back as plain text. The API key never reaches the browser.
+// Serverless function: proxies chat requests to an OpenAI-compatible LLM API
+// (Ollama, OpenAI, Groq, ...) and streams the reply back as plain text.
+// The API key never reaches the browser. Runs on Vercel and, in dev, via the Vite middleware.
 //
-// Env vars (set in Vercel -> Project Settings -> Environment Variables):
-//   LLM_API_KEY  (required)
-//   LLM_API_URL  (default: https://api.openai.com/v1/chat/completions)
-//   LLM_MODEL    (default: gpt-4o-mini)
+// Env vars (.env locally, Vercel -> Project Settings -> Environment Variables in production):
+//   BASE_URL  OpenAI-compatible base URL, e.g. http://localhost:11434/v1 (Ollama)
+//   API_KEY   required by the provider (Ollama ignores the value, e.g. "ollama")
+//   MODEL     e.g. qwen3:4b
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 type Req = IncomingMessage & { body?: unknown };
@@ -61,8 +62,12 @@ export default async function handler(req: Req, res: ServerResponse) {
     return sendJson(res, 405, { error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.LLM_API_KEY;
-  if (!apiKey) return sendJson(res, 500, { error: 'LLM_API_KEY is not configured on the server' });
+  const apiKey = process.env.API_KEY;
+  const baseUrl = process.env.BASE_URL?.replace(/\/+$/, '');
+  const model = process.env.MODEL;
+  if (!apiKey || !baseUrl || !model) {
+    return sendJson(res, 500, { error: 'BASE_URL, API_KEY and MODEL must be configured on the server' });
+  }
 
   const parsed = parseBody(req);
   if (!parsed) return sendJson(res, 400, { error: 'Invalid request body' });
@@ -72,11 +77,11 @@ export default async function handler(req: Req, res: ServerResponse) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(process.env.LLM_API_URL || 'https://api.openai.com/v1/chat/completions', {
+    upstream = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: process.env.LLM_MODEL || 'gpt-4o-mini',
+        model,
         stream: true,
         max_tokens: MAX_OUTPUT_TOKENS,
         messages: [{ role: 'system', content: `${GUARD}\n\n${parsed.context}` }, ...parsed.messages],

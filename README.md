@@ -113,20 +113,16 @@ npm run build
 
 ## 🤖 BookBot (AI Chat Assistant)
 
-A floating chat widget that answers questions about the catalogue.
+A floating chat widget that answers questions about the catalogue. The browser calls `/api/chat` ([`api/chat.ts`](api/chat.ts)), which talks to any OpenAI-compatible LLM using three server-side env vars (see [`.env.example`](.env.example)):
 
-- **Local dev** → uses your local [Ollama](https://ollama.com) (default model `llama3.2`; override with `VITE_OLLAMA_MODEL`). Vite proxies `/ollama` → `http://localhost:11434`.
-- **Production (Vercel)** → uses the serverless function [`api/chat.ts`](api/chat.ts), which calls any OpenAI-compatible hosted LLM API. The API key stays on the server.
+| Variable | Local Ollama | Hosted example |
+|---|---|---|
+| `BASE_URL` | `http://localhost:11434/v1` | `https://api.openai.com/v1` |
+| `API_KEY` | `ollama` (ignored by Ollama) | your provider key |
+| `MODEL` | `qwen3:4b` | `gpt-4o-mini` |
 
-Set these in **Vercel → Project Settings → Environment Variables** (see [`.env.example`](.env.example)):
-
-| Variable | Example |
-|---|---|
-| `LLM_API_KEY` | your provider key (do **not** prefix with `VITE_`) |
-| `LLM_API_URL` | `https://api.openai.com/v1/chat/completions` |
-| `LLM_MODEL` | `gpt-4o-mini` |
-
-Redeploy after adding variables. Local `npm run dev` does not run `api/`; use `npx vercel dev` to test the serverless function locally.
+- **Local dev** → copy `.env.example` to `.env`, run `ollama pull qwen3:4b`, then `npm run dev`. Vite serves `/api/chat` itself.
+- **Production (Vercel)** → add the same three variables in **Project Settings → Environment Variables** and redeploy. `localhost` is not reachable from Vercel, so use a hosted provider's `BASE_URL`/`API_KEY`/`MODEL` there. Keys stay on the server (never prefix with `VITE_`).
 
 ---
 
