@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bot, MessageCircle, Send, Square, Trash2, X } from 'lucide-react';
 import { useAppSelector } from '../../store/store';
-import { ChatMessage, OLLAMA_MODEL, streamOllamaChat } from '../../utils/ollamaClient';
+import { CHAT_PROVIDER_LABEL, ChatMessage, OLLAMA_MODEL, USE_OLLAMA, streamChat } from '../../utils/ollamaClient';
 
 interface UiMessage {
   role: 'user' | 'assistant';
@@ -82,7 +82,7 @@ export const ChatBot: React.FC = () => {
       setMessages((prev) => [...prev.slice(0, -1), fn(prev[prev.length - 1])]);
 
     try {
-      await streamOllamaChat(
+      await streamChat(
         payload,
         (token) => updateLast((m) => ({ ...m, content: m.content + token })),
         controller.signal
@@ -92,7 +92,9 @@ export const ChatBot: React.FC = () => {
         updateLast(() => ({
           role: 'assistant',
           error: true,
-          content: `I couldn't reach the Ollama AI service. Make sure Ollama is running locally and the "${OLLAMA_MODEL}" model is installed (ollama pull ${OLLAMA_MODEL}).`,
+          content: USE_OLLAMA
+            ? `I couldn't reach the Ollama AI service. Make sure Ollama is running locally and the "${OLLAMA_MODEL}" model is installed (ollama pull ${OLLAMA_MODEL}).`
+            : "Sorry, I couldn't get a response right now. Please try again in a moment.",
         }));
       }
     } finally {
@@ -128,7 +130,7 @@ export const ChatBot: React.FC = () => {
               <Bot className="h-5 w-5" />
               <div>
                 <p className="text-sm font-semibold leading-tight">BookBot</p>
-                <p className="text-[11px] leading-tight text-brand-100">Powered by Ollama · {OLLAMA_MODEL}</p>
+                <p className="text-[11px] leading-tight text-brand-100">Powered by {CHAT_PROVIDER_LABEL}</p>
               </div>
             </div>
             <div className="flex items-center gap-1">

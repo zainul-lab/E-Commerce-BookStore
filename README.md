@@ -111,6 +111,25 @@ npm run build
 
 ---
 
+## 🤖 BookBot (AI Chat Assistant)
+
+A floating chat widget that answers questions about the catalogue.
+
+- **Local dev** → uses your local [Ollama](https://ollama.com) (default model `llama3.2`; override with `VITE_OLLAMA_MODEL`). Vite proxies `/ollama` → `http://localhost:11434`.
+- **Production (Vercel)** → uses the serverless function [`api/chat.ts`](api/chat.ts), which calls any OpenAI-compatible hosted LLM API. The API key stays on the server.
+
+Set these in **Vercel → Project Settings → Environment Variables** (see [`.env.example`](.env.example)):
+
+| Variable | Example |
+|---|---|
+| `LLM_API_KEY` | your provider key (do **not** prefix with `VITE_`) |
+| `LLM_API_URL` | `https://api.openai.com/v1/chat/completions` |
+| `LLM_MODEL` | `gpt-4o-mini` |
+
+Redeploy after adding variables. Local `npm run dev` does not run `api/`; use `npx vercel dev` to test the serverless function locally.
+
+---
+
 ## 📂 Project Structure
 
 ```text
