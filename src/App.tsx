@@ -6,6 +6,7 @@ import { Footer } from './components/common/Footer';
 import { ToastContainer } from './components/common/ToastContainer';
 import { QuickViewModal } from './components/book/QuickViewModal';
 import { AuthModal } from './components/auth/AuthModal';
+import { ChatBot } from './components/chat/ChatBot';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -58,6 +59,7 @@ export const App: React.FC = () => {
         <QuickViewModal />
         <AuthModal />
         <ToastContainer />
+        <ChatBot />
       </div>
     </Router>
   );
